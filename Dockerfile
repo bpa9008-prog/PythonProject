@@ -16,7 +16,7 @@ COPY frontend/public ./frontend/public
 COPY models ./models
 COPY reports ./reports
 
-RUN useradd --create-home appuser && chown -R appuser /app/models
+RUN useradd --create-home appuser && mkdir -p /app/storage && chown -R appuser /app/storage
 USER appuser
 
 EXPOSE 8000

@@ -26,9 +26,15 @@ services:
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-clinic}:${POSTGRES_PASSWORD:-clinic}@db:5432/${POSTGRES_DB:-clinic}
       CLINIC_TIMEZONE: ${CLINIC_TIMEZONE:-Europe/Moscow}
+      # Модель, загруженная через /upload-model, лежит в томе и переживает перезапуск и пересборку.
+      # Пока в томе модели нет, берётся поставляемая в образе (/app/models/model.pkl). Том нельзя
+      # монтировать поверх /app/models: Docker наполняет том из образа один раз, и новая модель из
+      # пересобранного образа осталась бы скрытой старой.
+      MODEL_PATH: /app/storage/model.pkl
+      # Пустое значение — загрузка открыта всем. Для публичного сервера задайте токен в .env.
+      MODEL_UPLOAD_TOKEN: ${MODEL_UPLOAD_TOKEN:-}
     volumes:
-      # Загруженная через /upload-model модель переживает перезапуск контейнера.
-      - model-data:/app/models
+      - model-data:/app/storage
       # Датасет для ETL: docker compose exec api python -m app.etl.import_data --source data/raw/cardio_train.csv
       - ./data:/app/data:ro
     restart: unless-stopped
