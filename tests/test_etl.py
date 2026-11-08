@@ -247,5 +247,6 @@ def test_cli_fails_with_exit_code_for_missing_source(file_db, tmp_path):
 
 def test_cli_score_without_model_fails(file_db, source, monkeypatch, tmp_path):
     monkeypatch.setenv("MODEL_PATH", str(tmp_path / "missing.pkl"))
+    monkeypatch.setenv("BUNDLED_MODEL_PATH", str(tmp_path / "also-missing.pkl"))
 
     assert import_data.main(["--source", str(source), "--database-url", file_db, "--score"]) == 2
