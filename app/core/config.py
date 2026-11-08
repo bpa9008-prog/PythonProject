@@ -19,6 +19,10 @@ def _env_bool(name: str, default: bool) -> bool:
 @dataclass(frozen=True)
 class Settings:
     model_path: Path = field(default_factory=lambda: _env_path("MODEL_PATH", PROJECT_ROOT / "models" / "model.pkl"))
+    # Модель, поставляемая вместе с приложением: используется, если по MODEL_PATH файла ещё нет.
+    bundled_model_path: Path = field(
+        default_factory=lambda: _env_path("BUNDLED_MODEL_PATH", PROJECT_ROOT / "models" / "model.pkl")
+    )
     metrics_path: Path = field(
         default_factory=lambda: _env_path("METRICS_PATH", PROJECT_ROOT / "reports" / "metrics.json")
     )

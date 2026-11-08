@@ -48,7 +48,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         lifespan=lifespan,
     )
     app.state.settings = settings
-    app.state.model_service = ModelService(settings.model_path)
+    app.state.model_service = ModelService(settings.model_path, settings.bundled_model_path)
     # Схему БД создают только миграции Alembic (alembic upgrade head), а не приложение.
     app.state.engine = create_db_engine(settings.database_url)
     app.state.session_factory = create_session_factory(app.state.engine)

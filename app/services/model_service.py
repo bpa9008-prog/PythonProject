@@ -52,8 +52,9 @@ def _inspect(estimator: object) -> LoadedModel:
 class ModelService:
     """Потокобезопасный контейнер текущей модели."""
 
-    def __init__(self, model_path: Path) -> None:
+    def __init__(self, model_path: Path, fallback_path: Path | None = None) -> None:
         self._model_path = model_path
+        self._fallback_path = fallback_path
         self._lock = threading.Lock()
         self._model: LoadedModel | None = None
 
@@ -69,14 +70,17 @@ class ModelService:
         return self._model is not None
 
     def load_from_disk(self) -> bool:
-        if not self._model_path.exists():
-            logger.info("Файл модели %s не найден, сервис стартует без модели", self._model_path)
-            return False
-        model = _inspect(joblib.load(self._model_path))
-        with self._lock:
-            self._model = model
-        logger.info("Модель %s загружена из %s", model.model_type, self._model_path)
-        return True
+        """Загружает сохранённую модель; если её нет, берёт поставляемую вместе с приложением."""
+        for path in (self._model_path, self._fallback_path):
+            if path is None or not path.exists():
+                continue
+            model = _inspect(joblib.load(path))
+            with self._lock:
+                self._model = model
+            logger.info("Модель %s загружена из %s", model.model_type, path)
+            return True
+        logger.info("Файл модели %s не найден, сервис стартует без модели", self._model_path)
+        return False
 
     def load_from_bytes(self, content: bytes) -> LoadedModel:
         """Проверяет присланный pkl, сохраняет на диск и делает текущей моделью.
