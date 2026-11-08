@@ -118,11 +118,16 @@ def top_diagnoses(db: Session, limit: int = 5) -> list[TopDiagnosis]:
 
 def risk_followup(db: Session, page: Pagination) -> Page:
     """Пациенты, у которых последний осмотр показал высокий риск, а приёма после него нет."""
-    latest = (
-        select(Examination.patient_id, func.max(Examination.measured_at).label("measured_at"))
-        .group_by(Examination.patient_id)
-        .subquery()
-    )
+    # Последний осмотр пациента: по времени, а при равенстве — по id. Так на пациента ровно одна строка.
+    ranked = select(
+        Examination.id.label("id"),
+        func.row_number()
+        .over(
+            partition_by=Examination.patient_id,
+            order_by=(Examination.measured_at.desc(), Examination.id.desc()),
+        )
+        .label("rn"),
+    ).subquery()
     followup_exists = exists().where(
         Appointment.patient_id == Patient.id,
         Appointment.status.in_(("scheduled", "completed")),
@@ -131,10 +136,8 @@ def risk_followup(db: Session, page: Pagination) -> Page:
     query = (
         select(Patient.id, Patient.full_name, Examination.measured_at, Examination.risk_probability)
         .join(Examination, Examination.patient_id == Patient.id)
-        .join(
-            latest, and_(latest.c.patient_id == Examination.patient_id, latest.c.measured_at == Examination.measured_at)
-        )
-        .where(Examination.risk_level == "high", ~followup_exists)
+        .join(ranked, ranked.c.id == Examination.id)
+        .where(ranked.c.rn == 1, Examination.risk_level == "high", ~followup_exists)
         .order_by(Examination.risk_probability.desc(), Patient.id)
     )
     total = db.scalar(select(func.count()).select_from(query.order_by(None).subquery())) or 0
