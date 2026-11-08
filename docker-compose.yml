@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-clinic}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clinic}
+      POSTGRES_DB: ${POSTGRES_DB:-clinic}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  api:
+    build: .
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-clinic}:${POSTGRES_PASSWORD:-clinic}@db:5432/${POSTGRES_DB:-clinic}
+      CLINIC_TIMEZONE: ${CLINIC_TIMEZONE:-Europe/Moscow}
+    volumes:
+      # Загруженная через /upload-model модель переживает перезапуск контейнера.
+      - model-data:/app/models
+      # Датасет для ETL: docker compose exec api python -m app.etl.import_data --source data/raw/cardio_train.csv
+      - ./data:/app/data:ro
+    restart: unless-stopped
+
+volumes:
+  pg-data:
+  model-data:
