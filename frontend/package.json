@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
-    "test": "node --test \"tests/**/*.test.js\""
+    "test": "node --test"
   },
   "engines": {
     "node": ">=20"
