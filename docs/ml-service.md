@@ -175,7 +175,14 @@ curl -F "file=@models/model.pkl" http://localhost:8000/upload-model
  "features": ["age", "height", "weight", "ap_hi", "ap_lo", "cholesterol", "gluc"]}
 ```
 
-> ⚠️ Распаковка pickle выполняет произвольный код, поэтому загружайте только модели из доверенных источников.
+Если на сервере задан `MODEL_UPLOAD_TOKEN`, передайте его в заголовке (без него будет 401):
+
+```bash
+curl -H "X-Upload-Token: $TOKEN" -F "file=@models/model.pkl" http://localhost:8000/upload-model
+```
+
+> ⚠️ Распаковка pickle выполняет произвольный код, поэтому загружайте только модели из доверенных источников
+> и для любого общедоступного сервера задавайте `MODEL_UPLOAD_TOKEN`.
 
 ### `POST /predict`
 
