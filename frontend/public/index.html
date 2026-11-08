@@ -80,6 +80,13 @@
         <form id="upload-form" class="form form--inline">
           <input name="file" type="file" accept=".pkl,.joblib" required />
           <button type="submit">Загрузить модель</button>
+          <input
+            name="token"
+            type="password"
+            class="form__wide"
+            autocomplete="off"
+            placeholder="Токен загрузки (если задан на сервере)"
+          />
         </form>
         <p id="upload-result" class="result" hidden></p>
         <div id="metrics"></div>

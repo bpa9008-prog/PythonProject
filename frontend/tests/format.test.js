@@ -7,6 +7,7 @@ import {
   formatPercent,
   metricsBars,
   previewTable,
+  uploadHeaders,
 } from '../public/js/format.js';
 
 describe('buildRecord', () => {
@@ -92,5 +93,17 @@ describe('metricsBars', () => {
 
   it('returns empty list without metrics', () => {
     assert.deepEqual(metricsBars(null), []);
+  });
+});
+
+describe('uploadHeaders', () => {
+  it('sends the token header only when a token is entered', () => {
+    assert.deepEqual(uploadHeaders(' s3cret '), { 'X-Upload-Token': 's3cret' });
+  });
+
+  it('sends no extra headers for an empty or missing token', () => {
+    assert.deepEqual(uploadHeaders(''), {});
+    assert.deepEqual(uploadHeaders('   '), {});
+    assert.deepEqual(uploadHeaders(undefined), {});
   });
 });

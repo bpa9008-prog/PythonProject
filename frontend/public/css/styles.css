@@ -192,6 +192,10 @@ td {
   color: var(--text);
 }
 
+.form__wide {
+  grid-column: 1 / -1;
+}
+
 .card--wide {
   grid-column: 1 / -1;
 }

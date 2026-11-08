@@ -20,6 +20,12 @@ export function buildRecord(entries) {
   return record;
 }
 
+/** Заголовки загрузки модели: токен отправляем только если он введён. */
+export function uploadHeaders(token) {
+  const value = String(token ?? '').trim();
+  return value ? { 'X-Upload-Token': value } : {};
+}
+
 export function formatPercent(probability) {
   return `${(probability * 100).toFixed(1)}%`;
 }

@@ -1,4 +1,4 @@
-import { describeError } from './format.js';
+import { describeError, uploadHeaders } from './format.js';
 
 // По умолчанию фронтенд раздаётся тем же FastAPI, поэтому API на том же origin.
 const API_BASE = window.API_BASE ?? '';
@@ -50,6 +50,7 @@ export async function predictCsvFile(file) {
   return response.blob();
 }
 
-export async function uploadModel(file) {
-  return (await request('/upload-model', { method: 'POST', body: formWithFile(file) })).json();
+export async function uploadModel(file, token) {
+  const options = { method: 'POST', headers: uploadHeaders(token), body: formWithFile(file) };
+  return (await request('/upload-model', options)).json();
 }

@@ -146,7 +146,10 @@ $('#upload-form').addEventListener('submit', (event) => {
   withBusy(form, async () => {
     const result = $('#upload-result');
     try {
-      const response = await api.uploadModel(form.elements.file.files[0]);
+      const response = await api.uploadModel(
+        form.elements.file.files[0],
+        form.elements.token.value,
+      );
       result.className = 'result';
       result.textContent = response.message;
       result.hidden = false;
