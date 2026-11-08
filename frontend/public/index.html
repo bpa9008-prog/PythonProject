@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Риск сердечно-сосудистых заболеваний — ML-консультант</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>ML-консультант: риск сердечно-сосудистых заболеваний</h1>
+      <nav class="nav">
+        <a href="clinic.html">Клиника</a>
+        <a href="index.html" aria-current="page">ML-оценка риска и модель</a>
+        <a href="docs">API (Swagger)</a>
+      </nav>
+      <p id="model-status" class="status status--unknown">Проверяем модель…</p>
+    </header>
+
+    <main class="layout">
+      <section class="card">
+        <h2>Данные пациента</h2>
+        <form id="predict-form" class="form">
+          <label
+            >Возраст, лет
+            <input name="age_years" type="number" min="18" max="120" step="1" required value="50" />
+          </label>
+          <label
+            >Рост, см
+            <input name="height" type="number" min="50" max="250" step="1" required value="168" />
+          </label>
+          <label
+            >Вес, кг
+            <input name="weight" type="number" min="10" max="300" step="0.1" required value="62" />
+          </label>
+          <label
+            >Верхнее (систолическое) давление
+            <input name="ap_hi" type="number" min="50" max="300" step="1" required value="120" />
+          </label>
+          <label
+            >Нижнее (диастолическое) давление
+            <input name="ap_lo" type="number" min="30" max="200" step="1" required value="80" />
+          </label>
+          <label
+            >Холестерин
+            <select name="cholesterol" required>
+              <option value="1">Норма</option>
+              <option value="2">Выше нормы</option>
+              <option value="3">Значительно выше нормы</option>
+            </select>
+          </label>
+          <label
+            >Глюкоза
+            <select name="gluc" required>
+              <option value="1">Норма</option>
+              <option value="2">Выше нормы</option>
+              <option value="3">Значительно выше нормы</option>
+            </select>
+          </label>
+          <button type="submit">Получить предсказание</button>
+        </form>
+        <div id="predict-result" class="result" hidden></div>
+      </section>
+
+      <section class="card">
+        <h2>Пакетное предсказание из CSV</h2>
+        <p class="hint">
+          Сырой CSV из train_test_split или предобработанный. Если есть колонка
+          <code>cardio</code>, посчитаем ROC-AUC.
+        </p>
+        <form id="csv-form" class="form form--inline">
+          <input name="file" type="file" accept=".csv" required />
+          <button type="submit">Предсказать</button>
+        </form>
+        <div id="csv-result" class="result" hidden></div>
+      </section>
+
+      <section class="card">
+        <h2>Модель</h2>
+        <form id="upload-form" class="form form--inline">
+          <input name="file" type="file" accept=".pkl,.joblib" required />
+          <button type="submit">Загрузить модель</button>
+        </form>
+        <p id="upload-result" class="result" hidden></p>
+        <div id="metrics"></div>
+      </section>
+    </main>
+
+    <script type="module" src="js/main.js"></script>
+  </body>
+</html>
