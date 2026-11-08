@@ -9,7 +9,7 @@ from app.core.errors import ConflictError
 from app.models import Appointment, Patient
 from app.schemas.clinic import PatientCreate, PatientUpdate
 from app.schemas.common import Page, Pagination
-from app.services.common import commit_or_conflict, get_or_404, paginate
+from app.services.common import commit_or_conflict, contains, get_or_404, paginate
 
 SORT_COLUMNS = {
     "id": Patient.id,
@@ -41,7 +41,7 @@ def list_patients(
 ) -> Page:
     query = select(Patient)
     if search:
-        query = query.where(Patient.full_name.ilike(f"%{search}%"))
+        query = query.where(contains(Patient.full_name, search))
     if gender:
         query = query.where(Patient.gender == gender)
     column = SORT_COLUMNS[sort_by]

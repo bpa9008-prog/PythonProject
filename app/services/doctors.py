@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from app.models import Diagnosis, Doctor
 from app.schemas.clinic import DiagnosisCreate, DoctorCreate, DoctorUpdate
 from app.schemas.common import Page, Pagination
-from app.services.common import commit_or_conflict, get_or_404, paginate
+from app.services.common import commit_or_conflict, contains, get_or_404, paginate
 
 
 def create_doctor(db: Session, data: DoctorCreate) -> Doctor:
@@ -47,6 +47,5 @@ def create_diagnosis(db: Session, data: DiagnosisCreate) -> Diagnosis:
 def list_diagnoses(db: Session, page: Pagination, search: str | None = None) -> Page:
     query = select(Diagnosis).order_by(Diagnosis.icd_code)
     if search:
-        pattern = f"%{search}%"
-        query = query.where(Diagnosis.name.ilike(pattern) | Diagnosis.icd_code.ilike(pattern))
+        query = query.where(contains(Diagnosis.name, search) | contains(Diagnosis.icd_code, search))
     return paginate(db, query, page)

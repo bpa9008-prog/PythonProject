@@ -28,6 +28,12 @@ def get_or_404(db: Session, model: type[ModelT], entity_id: int, entity: str) ->
     return obj
 
 
+def contains(column, text: str):
+    """Условие «колонка содержит подстроку без учёта регистра»; % и _ в тексте считаются обычными символами."""
+    escaped = text.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+    return column.ilike(f"%{escaped}%", escape="\\")
+
+
 def paginate(db: Session, query: Select, page: Pagination) -> Page:
     total = db.scalar(select(func.count()).select_from(query.order_by(None).subquery())) or 0
     items = list(db.scalars(query.limit(page.limit).offset(page.offset)))
