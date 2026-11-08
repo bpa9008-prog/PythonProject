@@ -303,7 +303,7 @@ def main(argv: list[str] | None = None) -> int:
 
     model_service = None
     if args.score:
-        model_service = ModelService(settings.model_path)
+        model_service = ModelService(settings.model_path, settings.bundled_model_path)
         if not model_service.load_from_disk():
             logger.error(
                 "Модель %s не найдена: обучите её (python -m ml.train) или уберите --score", settings.model_path

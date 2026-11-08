@@ -132,7 +132,7 @@ def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")
     settings = Settings()
     engine = create_db_engine(settings.database_url)
-    model_service = ModelService(settings.model_path)
+    model_service = ModelService(settings.model_path, settings.bundled_model_path)
     model_service.load_from_disk()
     with create_session_factory(engine)() as session:
         created = seed(session, settings, model_service)
