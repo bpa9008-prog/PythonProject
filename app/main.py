@@ -29,6 +29,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
+        if settings.model_upload_token is None:
+            logger.warning(
+                "MODEL_UPLOAD_TOKEN не задан: /upload-model открыт всем. Для публичного сервера задайте токен."
+            )
         if settings.autoload_model:
             try:
                 app.state.model_service.load_from_disk()

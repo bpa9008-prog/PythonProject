@@ -35,6 +35,8 @@ class Settings:
     clinic_open_hour: int = field(default_factory=lambda: int(os.getenv("CLINIC_OPEN_HOUR", "8")))
     clinic_close_hour: int = field(default_factory=lambda: int(os.getenv("CLINIC_CLOSE_HOUR", "20")))
     min_cancel_hours: int = field(default_factory=lambda: int(os.getenv("MIN_CANCEL_HOURS", "2")))
+    # Распаковка pickle выполняет код из файла, поэтому загрузку модели можно закрыть токеном.
+    model_upload_token: str | None = field(default_factory=lambda: os.getenv("MODEL_UPLOAD_TOKEN") or None, repr=False)
     max_upload_mb: int = field(default_factory=lambda: int(os.getenv("MAX_UPLOAD_MB", "50")))
     log_level: str = field(default_factory=lambda: os.getenv("LOG_LEVEL", "INFO"))
 

@@ -32,6 +32,10 @@ class InvalidInputError(ServiceError):
     status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
+class UnauthorizedError(ServiceError):
+    status_code = status.HTTP_401_UNAUTHORIZED
+
+
 class NotFoundError(ServiceError):
     status_code = status.HTTP_404_NOT_FOUND
 

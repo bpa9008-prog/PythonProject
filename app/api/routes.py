@@ -1,15 +1,16 @@
 """HTTP-эндпоинты сервиса."""
 
+import hmac
 import json
 import logging
 from typing import Annotated, Literal
 
-from fastapi import APIRouter, File, Query, UploadFile
+from fastapi import APIRouter, File, Header, Query, UploadFile
 from fastapi.responses import Response
 
 from app.api.deps import ModelServiceDep, SettingsDep
 from app.core.config import Settings
-from app.core.errors import InvalidModelError, PayloadTooLargeError, error_body
+from app.core.errors import InvalidModelError, PayloadTooLargeError, UnauthorizedError, error_body
 from app.schemas.prediction import (
     CsvPredictResponse,
     ModelInfo,
@@ -25,6 +26,7 @@ router = APIRouter()
 
 MODEL_EXTENSIONS = (".pkl", ".joblib")
 ERROR_RESPONSES = {
+    401: {"description": "Неверный или отсутствующий X-Upload-Token"},
     400: {"description": "Некорректный файл", "content": {"application/json": {"example": error_body("...")}}},
     422: {"description": "Ошибка валидации входных данных"},
     503: {"description": "Модель не загружена"},
@@ -54,12 +56,25 @@ def model_info(service: ModelServiceDep, settings: SettingsDep) -> ModelInfo:
     return ModelInfo(loaded=True, model_type=model.model_type, features=model.raw_features, metrics=metrics)
 
 
+def _check_upload_token(settings: Settings, provided: str | None) -> None:
+    """Если задан MODEL_UPLOAD_TOKEN, загрузка модели требует его в заголовке X-Upload-Token."""
+    expected = settings.model_upload_token
+    if expected is None:
+        return
+    if provided is None or not hmac.compare_digest(provided.encode(), expected.encode()):
+        raise UnauthorizedError("Для загрузки модели нужен верный заголовок X-Upload-Token")
+
+
 @router.post("/upload-model", tags=["model"], responses=ERROR_RESPONSES)
 async def upload_model(
     service: ModelServiceDep,
     settings: SettingsDep,
     file: Annotated[UploadFile, File(description="Обученная модель (sklearn Pipeline) в формате pkl")],
+    x_upload_token: Annotated[
+        str | None, Header(description="Токен загрузки; обязателен, если на сервере задан MODEL_UPLOAD_TOKEN")
+    ] = None,
 ) -> UploadModelResponse:
+    _check_upload_token(settings, x_upload_token)
     if not (file.filename or "").lower().endswith(MODEL_EXTENSIONS):
         raise InvalidModelError(f"Ожидается файл с расширением {', '.join(MODEL_EXTENSIONS)}.")
     content = await _read_upload(file, settings)
