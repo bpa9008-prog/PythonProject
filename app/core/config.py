@@ -3,6 +3,7 @@
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
@@ -36,6 +37,21 @@ class Settings:
     min_cancel_hours: int = field(default_factory=lambda: int(os.getenv("MIN_CANCEL_HOURS", "2")))
     max_upload_mb: int = field(default_factory=lambda: int(os.getenv("MAX_UPLOAD_MB", "50")))
     log_level: str = field(default_factory=lambda: os.getenv("LOG_LEVEL", "INFO"))
+
+    def __post_init__(self) -> None:
+        """Неверные настройки должны ронять запуск сразу, а не 500-й ошибкой при первой записи на приём."""
+        try:
+            ZoneInfo(self.clinic_timezone)
+        except (ZoneInfoNotFoundError, ValueError) as exc:
+            raise ValueError(
+                f"CLINIC_TIMEZONE={self.clinic_timezone!r}: неизвестный часовой пояс, например Europe/Moscow"
+            ) from exc
+        if not 0 <= self.clinic_open_hour < self.clinic_close_hour <= 23:
+            raise ValueError("Часы работы: нужно 0 <= CLINIC_OPEN_HOUR < CLINIC_CLOSE_HOUR <= 23")
+        if self.min_cancel_hours < 0:
+            raise ValueError("MIN_CANCEL_HOURS не может быть отрицательным")
+        if not 0 <= self.risk_medium_threshold <= self.risk_high_threshold <= 1:
+            raise ValueError("Пороги риска: нужно 0 <= RISK_MEDIUM_THRESHOLD <= RISK_HIGH_THRESHOLD <= 1")
 
     @property
     def max_upload_bytes(self) -> int:
