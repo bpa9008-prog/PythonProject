@@ -50,7 +50,7 @@ tasks:
         image: python:3.12-slim
         script:
           - pip install --no-cache-dir -r requirements-dev.txt
-          - pytest --cov=app --cov=ml --cov-report=term-missing --cov-fail-under=80
+          - pytest --cov=app --cov=ml --cov-report=term-missing --cov-fail-under=90
 
   - name: frontend-check
     cubes:
