@@ -305,12 +305,11 @@ cd frontend && npm ci && npm run lint && npm test
 ├── migrations/         # Alembic
 ├── frontend/public/    # clinic.html, index.html, js/, css/
 ├── tests/  docs/  data/raw/  models/  reports/
-├── Dockerfile, docker-compose.yml, alembic.ini
-└── PROMPTS.md          # промпты, по которым сгенерирован код
+└── Dockerfile, docker-compose.yml, alembic.ini
 ```
 
 ## Команда
 
 | Участник | Роли | Зона ответственности |
 |---|---|---|
-| Павел Битковский | Backend / база данных, ML / данные, Frontend / DevOps | весь проект: `app/`, `migrations/`, `ml/`, `frontend/`, `tests/`, Docker, CI |
+| Битковский Павел | Backend / база данных, ML / данные, Frontend / DevOps | весь проект: `app/`, `migrations/`, `ml/`, `frontend/`, `tests/`, Docker, CI |

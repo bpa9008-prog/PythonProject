@@ -110,8 +110,7 @@ ROC-AUC ≈ 0.80 — типичный потолок для этого дата�
 ├── models/model.pkl        # обученная модель
 ├── reports/                # metrics.json, roc_curves.png
 ├── .sourcecraft/ci.yaml    # CI SourceCraft
-├── Dockerfile, docker-compose.yml
-└── PROMPTS.md              # промпты, по которым сгенерирован код
+└── Dockerfile, docker-compose.yml
 ```
 
 ## Запуск
@@ -272,6 +271,6 @@ npm test                           # 11 тестов на node:test
 
 | Роль | Участник | Зона ответственности |
 |---|---|---|
-| ML Engineer | Павел Битковский | `ml/`, `models/`, `reports/`, `tests/test_ml.py` |
-| Backend Developer | Павел Битковский | `app/`, `tests/test_api.py`, Docker, CI |
-| Frontend Developer | Павел Битковский (вайбкодинг, см. `PROMPTS.md`) | `frontend/` |
+| ML Engineer | Битковский Павел | `ml/`, `models/`, `reports/`, `tests/test_ml.py` |
+| Backend Developer | Битковский Павел | `app/`, `tests/test_api.py`, Docker, CI |
+| Frontend Developer | Битковский Павел | `frontend/` |
