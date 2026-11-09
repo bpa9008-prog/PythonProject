@@ -1,5 +1,6 @@
 """Конструирование и отбор признаков."""
 
+import math
 from dataclasses import dataclass
 
 import numpy as np
@@ -64,10 +65,18 @@ def cramers_v(x: pd.Series, y: pd.Series) -> float:
     """V Крамера — сила связи двух категориальных переменных, от 0 до 1."""
     table = pd.crosstab(x, y).to_numpy()
     n = table.sum()
+    min_dim = min(table.shape) - 1
+    # Пустые данные или константный признак: связи нет, и делить на ноль не нужно.
+    if n == 0 or min_dim <= 0:
+        return 0.0
     expected = table.sum(axis=1, keepdims=True) * table.sum(axis=0, keepdims=True) / n
     chi2 = ((table - expected) ** 2 / expected).sum()
-    min_dim = min(table.shape) - 1
-    return float(np.sqrt(chi2 / (n * min_dim))) if min_dim > 0 else 0.0
+    return float(np.sqrt(chi2 / (n * min_dim)))
+
+
+def _association(value: float) -> float:
+    """Сила связи по модулю; NaN (константная колонка или колонка из одних пропусков) считаем отсутствием связи."""
+    return 0.0 if math.isnan(value) else abs(value)
 
 
 def select_features(
@@ -82,7 +91,8 @@ def select_features(
     dropped: dict[str, str] = {}
 
     for column in numeric:
-        scores[column] = abs(float(df[column].corr(df[target])))
+        # corr() пропускает пары с NaN; если пар не осталось, получим NaN, и признак отсеется как слабый.
+        scores[column] = _association(float(df[column].corr(df[target])))
     for column in categorical:
         scores[column] = cramers_v(df[column].fillna("missing"), df[target])
 

@@ -55,12 +55,27 @@ def candidate_models() -> dict[str, ClassifierMixin]:
     }
 
 
+# Имя последнего шага пайплайна: сервис и обучение считают его классификатором.
+MODEL_STEP = "model"
+
+
+def split_pipeline(pipeline: Pipeline) -> tuple[Pipeline, ClassifierMixin]:
+    """Делит пайплайн на предобработку (все шаги, кроме последнего) и классификатор.
+
+    Явная проверка вместо неявного `pipeline[:-1]`: если порядок шагов изменится, мы узнаем об этом сразу.
+    """
+    name, model = pipeline.steps[-1]
+    if name != MODEL_STEP:
+        raise ValueError(f"Последний шаг пайплайна должен называться {MODEL_STEP!r}, а не {name!r}")
+    return pipeline[:-1], model
+
+
 def build_pipeline(selection: FeatureSelection, model: ClassifierMixin) -> Pipeline:
     return Pipeline(
         [
             ("features", FunctionTransformer(add_engineered_features)),
             ("preprocessor", build_preprocessor(selection.numeric, selection.categorical)),
-            ("model", model),
+            (MODEL_STEP, model),
         ]
     )
 
@@ -76,7 +91,8 @@ def split_dataset(df: pd.DataFrame, splits_dir: Path) -> tuple[pd.DataFrame, pd.
 
 def save_processed_test(pipeline: Pipeline, test: pd.DataFrame, path: Path) -> None:
     # Всё, кроме классификатора: конструирование признаков + импутация, масштабирование, one-hot.
-    processed = pipeline[:-1].transform(test[pipeline.feature_names_in_])
+    preprocessing, _ = split_pipeline(pipeline)
+    processed = preprocessing.transform(test[pipeline.feature_names_in_])
     processed[TARGET] = test[TARGET].to_numpy()
     processed.to_csv(path, index=False)
 
