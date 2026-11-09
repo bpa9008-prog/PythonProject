@@ -4,11 +4,12 @@ import joblib
 import numpy as np
 import pandas as pd
 import pytest
+from sklearn.pipeline import Pipeline
 
 from ml.config import CANDIDATE_CATEGORICAL, ID_COLUMN, TARGET
 from ml.features import add_engineered_features, cramers_v, required_raw_columns, select_features
 from ml.preprocessing import build_preprocessor, clean_dataset, load_dataset
-from ml.train import train
+from ml.train import split_pipeline, train
 from tests.conftest import make_dataset
 
 
@@ -112,3 +113,51 @@ def test_train_saves_best_model_and_metrics(tmp_path):
     assert TARGET not in model.feature_names_in_
     assert (tmp_path / "reports" / "roc_curves.png").exists()
     assert {"train.csv", "test.csv", "test_processed.csv"} <= {p.name for p in (tmp_path / "splits").iterdir()}
+
+
+# --- защиты, добавленные после ревью -----------------------------------------
+
+
+def test_cramers_v_returns_zero_for_empty_input_without_warnings(recwarn):
+    assert cramers_v(pd.Series([], dtype=object), pd.Series([], dtype=int)) == 0.0
+    assert len(recwarn) == 0  # раньше здесь были RuntimeWarning из-за деления на ноль
+
+
+def test_cramers_v_returns_zero_for_a_constant_feature():
+    assert cramers_v(pd.Series(["a"] * 10), pd.Series([0, 1] * 5)) == 0.0
+
+
+def test_select_features_scores_an_all_nan_column_as_no_relationship(dataset):
+    df = dataset.copy()
+    df["empty"] = np.nan
+
+    selection = select_features(df, TARGET, ["empty", "ap_hi"], [])
+
+    assert selection.scores["empty"] == 0.0
+    assert selection.dropped["empty"].startswith("low relevance")
+    assert selection.numeric == ["ap_hi"]
+
+
+def test_select_features_ignores_nan_pairs_instead_of_failing(dataset):
+    df = dataset.copy()
+    df.loc[df.index[:50], "ap_hi"] = np.nan
+
+    selection = select_features(df, TARGET, ["ap_hi"], [])
+
+    assert 0 < selection.scores["ap_hi"] <= 1
+    assert selection.numeric == ["ap_hi"]
+
+
+def test_split_pipeline_separates_preprocessing_from_the_classifier(trained_pipeline):
+    preprocessing, model = split_pipeline(trained_pipeline)
+
+    assert type(model).__name__ == "LogisticRegression"
+    assert [name for name, _ in preprocessing.steps] == ["features", "preprocessor"]
+
+
+def test_split_pipeline_rejects_a_renamed_or_reordered_final_step(trained_pipeline):
+    *steps, (_, classifier) = trained_pipeline.steps
+    renamed = Pipeline([*steps, ("clf", classifier)])
+
+    with pytest.raises(ValueError, match="model"):
+        split_pipeline(renamed)
