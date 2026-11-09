@@ -1,0 +1,75 @@
+{
+  "best_model": "gradient_boosting",
+  "models": {
+    "logistic_regression": {
+      "cv_roc_auc_mean": 0.791,
+      "cv_roc_auc_std": 0.0025,
+      "test_roc_auc": 0.7855
+    },
+    "random_forest": {
+      "cv_roc_auc_mean": 0.7887,
+      "cv_roc_auc_std": 0.0028,
+      "test_roc_auc": 0.789
+    },
+    "gradient_boosting": {
+      "cv_roc_auc_mean": 0.7997,
+      "cv_roc_auc_std": 0.0029,
+      "test_roc_auc": 0.7955
+    }
+  },
+  "features": [
+    "age_years",
+    "bmi",
+    "ap_hi",
+    "ap_lo",
+    "cholesterol",
+    "gluc"
+  ],
+  "input_columns": [
+    "age",
+    "height",
+    "weight",
+    "ap_hi",
+    "ap_lo",
+    "cholesterol",
+    "gluc"
+  ],
+  "feature_scores": {
+    "age_years": 0.2426,
+    "height": 0.0148,
+    "weight": 0.1815,
+    "bmi": 0.1916,
+    "ap_hi": 0.4291,
+    "ap_lo": 0.3421,
+    "pulse_pressure": 0.3368,
+    "gender": 0.0039,
+    "cholesterol": 0.2221,
+    "gluc": 0.095,
+    "smoke": 0.0192,
+    "alco": 0.0097,
+    "active": 0.034
+  },
+  "dropped_features": {
+    "active": "low relevance (0.034 < 0.05)",
+    "height": "low relevance (0.015 < 0.05)",
+    "gender": "low relevance (0.004 < 0.05)",
+    "alco": "low relevance (0.010 < 0.05)",
+    "smoke": "low relevance (0.019 < 0.05)",
+    "pulse_pressure": "collinear with ap_hi",
+    "weight": "collinear with bmi"
+  },
+  "cleaning": {
+    "rows_before": 56000,
+    "removed": {
+      "duplicates": 17,
+      "missing_target": 0,
+      "ap_hi_outliers": 187,
+      "ap_lo_outliers": 793,
+      "height_outliers": 45,
+      "weight_outliers": 5,
+      "ap_lo_above_ap_hi": 80
+    }
+  },
+  "train_rows": 54873,
+  "test_rows": 14000
+}
