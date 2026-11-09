@@ -266,7 +266,7 @@ pytest --cov=app --cov=ml --cov-report=term-missing --cov-report=html     # от
 cd frontend && npm ci && npm run lint && npm test
 ```
 
-- **154 теста pytest**, покрытие ~97% (порог в CI — 90%, задание требует не меньше 70%).
+- **160 тестов pytest**, покрытие ~97% (порог в CI — 90%, задание требует не меньше 70%).
 - Интеграционные тесты идут через `TestClient`; для каждого теста создаётся своя БД SQLite в памяти, поэтому откат между тестами не нужен.
   Время подменяется управляемыми часами.
 - Unit-тесты сервисов (`test_clinic_services.py`), ограничений БД, ETL-очистки (`test_etl.py`), миграций (`test_migrations.py`).

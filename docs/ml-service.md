@@ -247,7 +247,7 @@ curl -F "file=@data/splits/test.csv" "http://localhost:8000/predict-from-csv?out
 
 ```bash
 ruff check . && ruff format --check .
-pytest --cov=app --cov=ml          # 154 теста, покрытие ~97%
+pytest --cov=app --cov=ml          # 160 тестов, покрытие ~97%
 
 cd frontend
 npm ci
