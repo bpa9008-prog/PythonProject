@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Кардиологическая клиника</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>Кардиологическая клиника</h1>
+      <nav class="nav">
+        <a href="clinic.html" aria-current="page">Клиника</a>
+        <a href="index.html">ML-оценка риска и модель</a>
+        <a href="docs">API (Swagger)</a>
+      </nav>
+      <div id="global-error" class="result" hidden></div>
+    </header>
+
+    <main class="layout">
+      <section class="card card--wide">
+        <h2>Пациенты</h2>
+        <input id="patient-search" type="search" placeholder="Поиск по ФИО" />
+        <div id="patients-error" class="result" hidden></div>
+        <div id="patients-table"></div>
+        <div id="patients-pager" class="pager"></div>
+
+        <h3 id="patient-form-title">Новый пациент</h3>
+        <form id="patient-form" class="form form--grid">
+          <label
+            >ФИО
+            <input name="full_name" required minlength="2" maxlength="200" />
+          </label>
+          <label
+            >Дата рождения
+            <input name="birth_date" type="date" required />
+          </label>
+          <label
+            >Пол
+            <select name="gender">
+              <option value="M">Мужской</option>
+              <option value="F">Женский</option>
+            </select>
+          </label>
+          <label
+            >Телефон
+            <input name="phone" type="tel" placeholder="+79991234567" />
+          </label>
+          <div class="actions">
+            <button type="submit">Создать</button>
+            <button type="button" id="patient-cancel" class="button--secondary" hidden>
+              Отмена
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>Запись на приём</h2>
+        <form id="booking-form" class="form">
+          <label
+            >Пациент (поиск по ФИО)
+            <input id="booking-patient-search" type="search" placeholder="Начните вводить ФИО" />
+            <select id="booking-patient" name="patient_id" required></select>
+          </label>
+          <label
+            >Врач
+            <select id="booking-doctor" name="doctor_id" required></select>
+          </label>
+          <label
+            >Дата и время (местное)
+            <input name="scheduled_at" type="datetime-local" required />
+          </label>
+          <label
+            >Длительность
+            <select name="duration_minutes">
+              <option value="15">15 минут</option>
+              <option value="30" selected>30 минут</option>
+              <option value="45">45 минут</option>
+              <option value="60">60 минут</option>
+            </select>
+          </label>
+          <label
+            >Причина
+            <input name="reason" maxlength="500" />
+          </label>
+          <button type="submit">Записать</button>
+        </form>
+        <div id="booking-result" class="result" hidden></div>
+      </section>
+
+      <section class="card">
+        <h2>Медосмотр и риск</h2>
+        <form id="examination-form" class="form">
+          <label
+            >Пациент (поиск по ФИО)
+            <input
+              id="examination-patient-search"
+              type="search"
+              placeholder="Начните вводить ФИО"
+            />
+            <select id="examination-patient" name="patient_id" required></select>
+          </label>
+          <div class="form--grid">
+            <label
+              >Рост, см
+              <input
+                name="height"
+                type="number"
+                min="50"
+                max="250"
+                step="any"
+                required
+                value="170"
+              />
+            </label>
+            <label
+              >Вес, кг
+              <input
+                name="weight"
+                type="number"
+                min="10"
+                max="300"
+                step="any"
+                required
+                value="75"
+              />
+            </label>
+            <label
+              >АД верхнее
+              <input name="ap_hi" type="number" min="50" max="300" required value="120" />
+            </label>
+            <label
+              >АД нижнее
+              <input name="ap_lo" type="number" min="30" max="200" required value="80" />
+            </label>
+            <label
+              >Холестерин
+              <select name="cholesterol">
+                <option value="1">Норма</option>
+                <option value="2">Выше нормы</option>
+                <option value="3">Значительно выше</option>
+              </select>
+            </label>
+            <label
+              >Глюкоза
+              <select name="gluc">
+                <option value="1">Норма</option>
+                <option value="2">Выше нормы</option>
+                <option value="3">Значительно выше</option>
+              </select>
+            </label>
+          </div>
+          <div class="checks">
+            <label><input name="smoke" type="checkbox" /> Курит</label>
+            <label><input name="alco" type="checkbox" /> Алкоголь</label>
+            <label><input name="active" type="checkbox" checked /> Активен</label>
+          </div>
+          <button type="submit">Сохранить и оценить риск</button>
+        </form>
+        <div id="examination-result" class="result" hidden></div>
+      </section>
+
+      <section class="card card--wide">
+        <h2>Приёмы</h2>
+        <div class="toolbar">
+          <label
+            >Статус
+            <select id="appointments-status">
+              <option value="">все</option>
+              <option value="scheduled">запланированные</option>
+              <option value="completed">состоявшиеся</option>
+              <option value="cancelled">отменённые</option>
+              <option value="no_show">неявки</option>
+            </select>
+          </label>
+          <label
+            >Диагноз при завершении
+            <select id="complete-diagnosis"></select>
+          </label>
+        </div>
+        <div id="appointments-error" class="result" hidden></div>
+        <div id="appointments-table"></div>
+        <div id="appointments-pager" class="pager"></div>
+      </section>
+
+      <section class="card card--wide">
+        <h2>Аналитика</h2>
+        <h3>Загрузка врачей</h3>
+        <div id="workload"></div>
+        <h3>Динамика риска по годам</h3>
+        <div id="risk-dynamics"></div>
+        <div id="followup"></div>
+      </section>
+    </main>
+
+    <script type="module" src="js/clinic.js"></script>
+  </body>
+</html>

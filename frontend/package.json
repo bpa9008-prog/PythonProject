@@ -1,0 +1,21 @@
+{
+  "name": "cardio-risk-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Минималистичный интерфейс ML-сервиса оценки сердечно-сосудистого риска",
+  "scripts": {
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.13.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.10"
+  }
+}
