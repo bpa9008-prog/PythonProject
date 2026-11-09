@@ -1,0 +1,63 @@
+# CI для SourceCraft: https://sourcecraft.dev/portal/docs/ru/sourcecraft/concepts/ci-cd
+# Линтинг и тесты backend и frontend идут параллельно, сборка — после них.
+
+on:
+  push:
+    - workflows: ci
+      filter:
+        branches: ["main"]
+  pull_request:
+    - workflows: ci
+      filter:
+        source_branches: ["**"]
+        target_branches: ["main"]
+
+workflows:
+  ci:
+    tasks:
+      - backend-lint
+      - backend-test
+      - frontend-check
+      - name: build
+        needs: [backend-lint, backend-test, frontend-check]
+        cubes:
+          # Сборка ML-артефакта: обучение на полном датасете и смоук-тест сервиса с этой моделью.
+          - name: train-model
+            image: python:3.12-slim
+            script:
+              - pip install --no-cache-dir -r requirements-dev.txt
+              - python -m ml.train --cv-folds 3
+              - pytest tests/test_api.py -k production_model
+            artifacts:
+              paths:
+                - models/model.pkl
+                - reports/metrics.json
+                - reports/roc_curves.png
+
+tasks:
+  - name: backend-lint
+    cubes:
+      - name: ruff
+        image: python:3.12-slim
+        script:
+          - pip install --no-cache-dir ruff==0.17.3
+          - ruff check .
+          - ruff format --check .
+
+  - name: backend-test
+    cubes:
+      - name: pytest
+        image: python:3.12-slim
+        script:
+          - pip install --no-cache-dir -r requirements-dev.txt
+          - pytest --cov=app --cov=ml --cov-report=term-missing --cov-fail-under=90
+
+  - name: frontend-check
+    cubes:
+      - name: lint-and-test
+        image: node:20-slim
+        script:
+          - cd frontend
+          - npm ci
+          - npm run lint
+          - npm test

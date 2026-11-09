@@ -110,8 +110,7 @@ ROC-AUC ≈ 0.80 — типичный потолок для этого дата�
 ├── models/model.pkl        # обученная модель
 ├── reports/                # metrics.json, roc_curves.png
 ├── .sourcecraft/ci.yaml    # CI SourceCraft
-├── Dockerfile, docker-compose.yml
-└── PROMPTS.md              # промпты, по которым сгенерирован код
+└── Dockerfile, docker-compose.yml
 ```
 
 ## Запуск
@@ -175,7 +174,14 @@ curl -F "file=@models/model.pkl" http://localhost:8000/upload-model
  "features": ["age", "height", "weight", "ap_hi", "ap_lo", "cholesterol", "gluc"]}
 ```
 
-> ⚠️ Распаковка pickle выполняет произвольный код, поэтому загружайте только модели из доверенных источников.
+Если на сервере задан `MODEL_UPLOAD_TOKEN`, передайте его в заголовке (без него будет 401):
+
+```bash
+curl -H "X-Upload-Token: $TOKEN" -F "file=@models/model.pkl" http://localhost:8000/upload-model
+```
+
+> ⚠️ Распаковка pickle выполняет произвольный код, поэтому загружайте только модели из доверенных источников
+> и для любого общедоступного сервера задавайте `MODEL_UPLOAD_TOKEN`.
 
 ### `POST /predict`
 
@@ -240,7 +246,7 @@ curl -F "file=@data/splits/test.csv" "http://localhost:8000/predict-from-csv?out
 
 ```bash
 ruff check . && ruff format --check .
-pytest --cov=app --cov=ml          # 154 теста, покрытие ~97%
+pytest --cov=app --cov=ml          # 160 тестов, покрытие ~97%
 
 cd frontend
 npm ci
@@ -265,6 +271,6 @@ npm test                           # 11 тестов на node:test
 
 | Роль | Участник | Зона ответственности |
 |---|---|---|
-| ML Engineer | Павел Битковский | `ml/`, `models/`, `reports/`, `tests/test_ml.py` |
-| Backend Developer | Павел Битковский | `app/`, `tests/test_api.py`, Docker, CI |
-| Frontend Developer | Павел Битковский (вайбкодинг, см. `PROMPTS.md`) | `frontend/` |
+| ML Engineer | Битковский Павел | `ml/`, `models/`, `reports/`, `tests/test_ml.py` |
+| Backend Developer | Битковский Павел | `app/`, `tests/test_api.py`, Docker, CI |
+| Frontend Developer | Битковский Павел | `frontend/` |
